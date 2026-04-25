@@ -11,3 +11,8 @@ source .venv/bin/activate
 
 --Windows
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+
+py -m venv .venv
+.\.venv\Scripts\Activate
+.\.venv\Scripts\deactivate.bat
