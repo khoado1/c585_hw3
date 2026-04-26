@@ -50,4 +50,4 @@ for SNN;
 python ann_snn.py --weights cnn_cifar10.pth --num_steps 25 --batch_size 128
 python ann_snn.py --weights cnn_cifar10_best.pth --num_steps 25 --batch_size 128
 
-more updates
+python surrogate_snn.py --epochs 10 --batch_size 128 --lr 0.001 --num_steps 25
