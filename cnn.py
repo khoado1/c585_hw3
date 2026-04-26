@@ -8,6 +8,8 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, random_split
+import ssl
+import certifi
 
 
 class CIFAR10CNN(nn.Module):
@@ -179,6 +181,10 @@ def plot_curves(history):
 
 
 def main():
+    
+    ssl._create_default_https_context = lambda: ssl.create_default_context(
+        cafile=certifi.where()
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch_size", type=int, default=128)

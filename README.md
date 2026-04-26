@@ -1,10 +1,10 @@
 first commit
 
-python cnn.py --epochs 30 --batch_size 128 --lr 0.001
+python3 cnn.py --epochs 30 --batch_size 128 --lr 0.001
 
 
 
-pip install torch torchvision matplotlib
+pip install torch torchvision matplotlib certifi
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -16,3 +16,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 py -m venv .venv
 .\.venv\Scripts\Activate
 .\.venv\Scripts\deactivate.bat
+
+Certificate error when running it
+open "/Applications/Python 3.14/Install Certificates.command"
+
