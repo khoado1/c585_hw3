@@ -49,3 +49,5 @@ https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64
 for SNN;
 python ann_snn.py --weights cnn_cifar10.pth --num_steps 25 --batch_size 128
 python ann_snn.py --weights cnn_cifar10_best.pth --num_steps 25 --batch_size 128
+
+more updates
