@@ -13,7 +13,7 @@ from snntorch import spikegen
 # 1. CNN ARCHITECTURE
 # Must match your cnn.py model
 # ----------------------------
-class CNN(nn.Module):
+class CIFAR10CNN(nn.Module):
     def __init__(self):
         super().__init__()
 
@@ -54,28 +54,37 @@ class ConvertedSNN(nn.Module):
     def __init__(self, cnn_model, beta=0.95):
         super().__init__()
 
-        # Reuse trained CNN layers
+        # features indices from your cnn.py
         self.conv1 = cnn_model.features[0]
         self.bn1 = cnn_model.features[1]
         self.lif1 = snn.Leaky(beta=beta)
-        self.pool1 = cnn_model.features[3]
 
-        self.conv2 = cnn_model.features[4]
-        self.bn2 = cnn_model.features[5]
+        self.conv2 = cnn_model.features[3]
+        self.bn2 = cnn_model.features[4]
         self.lif2 = snn.Leaky(beta=beta)
-        self.pool2 = cnn_model.features[7]
+        self.pool1 = cnn_model.features[6]
 
-        self.conv3 = cnn_model.features[8]
-        self.bn3 = cnn_model.features[9]
+        self.conv3 = cnn_model.features[7]
+        self.bn3 = cnn_model.features[8]
         self.lif3 = snn.Leaky(beta=beta)
-        self.pool3 = cnn_model.features[11]
 
-        self.flatten = nn.Flatten()
-
-        self.fc1 = cnn_model.classifier[1]
+        self.conv4 = cnn_model.features[10]
+        self.bn4 = cnn_model.features[11]
         self.lif4 = snn.Leaky(beta=beta)
+        self.pool2 = cnn_model.features[13]
 
-        self.fc2 = cnn_model.classifier[3]
+        self.conv5 = cnn_model.features[14]
+        self.bn5 = cnn_model.features[15]
+        self.lif5 = snn.Leaky(beta=beta)
+        self.pool3 = cnn_model.features[17]
+
+        # classifier indices from your cnn.py
+        self.flatten = cnn_model.classifier[0]
+        self.fc1 = cnn_model.classifier[1]
+        self.lif6 = snn.Leaky(beta=beta)
+
+        # skip classifier[3] Dropout for SNN inference
+        self.fc2 = cnn_model.classifier[4]
 
     def forward(self, x, num_steps):
         batch_size = x.size(0)
@@ -84,11 +93,12 @@ class ConvertedSNN(nn.Module):
         mem2 = self.lif2.init_leaky()
         mem3 = self.lif3.init_leaky()
         mem4 = self.lif4.init_leaky()
+        mem5 = self.lif5.init_leaky()
+        mem6 = self.lif6.init_leaky()
 
-        spike_count = 0
         output_sum = torch.zeros(batch_size, 10, device=x.device)
+        total_spikes = 0
 
-        # Rate-code input over time
         spike_data = spikegen.rate(x, num_steps=num_steps)
 
         for step in range(num_steps):
@@ -97,33 +107,42 @@ class ConvertedSNN(nn.Module):
             cur = self.conv1(cur)
             cur = self.bn1(cur)
             spk1, mem1 = self.lif1(cur, mem1)
-            spike_count += spk1.sum().item()
-            cur = self.pool1(spk1)
+            total_spikes += spk1.sum().item()
 
-            cur = self.conv2(cur)
+            cur = self.conv2(spk1)
             cur = self.bn2(cur)
             spk2, mem2 = self.lif2(cur, mem2)
-            spike_count += spk2.sum().item()
-            cur = self.pool2(spk2)
+            total_spikes += spk2.sum().item()
+            cur = self.pool1(spk2)
 
             cur = self.conv3(cur)
             cur = self.bn3(cur)
             spk3, mem3 = self.lif3(cur, mem3)
-            spike_count += spk3.sum().item()
-            cur = self.pool3(spk3)
+            total_spikes += spk3.sum().item()
+
+            cur = self.conv4(spk3)
+            cur = self.bn4(cur)
+            spk4, mem4 = self.lif4(cur, mem4)
+            total_spikes += spk4.sum().item()
+            cur = self.pool2(spk4)
+
+            cur = self.conv5(cur)
+            cur = self.bn5(cur)
+            spk5, mem5 = self.lif5(cur, mem5)
+            total_spikes += spk5.sum().item()
+            cur = self.pool3(spk5)
 
             cur = self.flatten(cur)
 
             cur = self.fc1(cur)
-            spk4, mem4 = self.lif4(cur, mem4)
-            spike_count += spk4.sum().item()
+            spk6, mem6 = self.lif6(cur, mem6)
+            total_spikes += spk6.sum().item()
 
-            out = self.fc2(spk4)
+            out = self.fc2(spk6)
 
-            # Aggregate predictions over time
             output_sum += out
 
-        return output_sum, spike_count
+        return output_sum, total_spikes
 
 
 # ----------------------------
@@ -211,7 +230,7 @@ def main():
 
     test_loader = get_test_loader(args.batch_size)
 
-    cnn = CNN().to(device)
+    cnn = CIFAR10CNN().to(device)
     cnn.load_state_dict(torch.load(args.weights, map_location=device))
     cnn.eval()
 
