@@ -1,8 +1,8 @@
 .venv
 data/
 runs/
-.DS_Store/
 __pycache__/
+.DS_Store
 *.tar.gz
 *.pth
 *.pt
