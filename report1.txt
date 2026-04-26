@@ -1,5 +1,4 @@
-
-CNN:
+## CNN:
 •	Model architecture: 
 
 Input:
@@ -54,36 +53,164 @@ Data Preprocessing:
 Hardware:
 - Training performed on GPU
 
-•	Results: training/validation loss and accuracy curves, final test accuracy, average inference time per
-image (ms/image)
+•	Results:
 
-- Final Test Accuracy: XX.XX %
-- Training Accuracy: 89.28%
-- Validation Accuracy: 88.68%
+Final Results
+Best Validation Accuracy: 88.68%
+Test Loss: 0.3536
+Test Accuracy: 89.28%
+Average Inference Time: 0.4882 ms/image
 
-Loss and Accuracy Curves:
-- Training loss decreased steadily over epochs
-- Validation accuracy improved and stabilized, indicating good generalization
-
-Inference Performance:
-- Average inference time: XX.XX ms/image
 
 •	Any special techniques used to improve the performance if any 
-Several techniques were used to improve model performance:
+In order for the code to run on a GPU, NVIDIA 5090, we had to install the CUDA library
+and install a special version of torch.
 
-1. Data Augmentation:
-   - Random cropping and horizontal flipping increased dataset diversity and reduced overfitting.
+## ANN to SNN:
+• Conversion methodology:
 
-2. Batch Normalization:
-   - Applied after convolution layers to stabilize training and accelerate convergence.
+   conversion: ANN->SNN
+   method: layer weight transfer approach
+   note: all conv and fc layer weight copied from ANN to SNN
+   normalization: batch normalization
+   activation: ReLU -> spiking neuron models (Leaky Integrate-and-Fire neurons)
 
-3. Deep Architecture:
-   - Multiple convolutional layers allowed the network to learn hierarchical features.
+• Spike encoding:
+rate coding implementation details: The input images were encoded into spike trains using rate coding.  Each pixel intensity was converted into a sequence of spikes over time, where higher pixel values correspond to higher spike rates. At each time step, input spikes are generated probabilistically based on normalized pixel intensities.
 
-4. ReLU Activation:
-   - Introduced non-linearity and improved gradient flow.
+input normalization: Input normalization was applied using CIFAR-10 dataset statistics (mean and standard deviation), ensuring consistent input scaling across time steps.
 
-5. Max Pooling:
-   - Reduced spatial dimensions while retaining important features.
+• Temporal inference: number of time steps T, how predictions are aggregated over time
 
-These techniques collectively helped the model achieve high accuracy (>80%) on CIFAR-10.
+Number of time steps: Time steps T: 25
+
+how predictions are aggregated over time: At each time step, spikes propagate through the network and membrane potentials accumulate over time.  Final predictions are obtained by aggregating outputs across all time steps. The class with the highest accumulated response is selected as the predicted label.
+
+
+• Metrics: test accuracy, target: within 5-10% of CNN accuracy, average number of time steps to
+stable prediction, total spik count per inference, average firing rate
+
+Using device: cuda
+
+Converted ANN-to-SNN Results
+----------------------------
+Time steps T: 25
+Test accuracy: 26.27%
+Average spikes per image: 773180.28
+Average inference time: 1.2779 ms/image
+Average firing rate proxy: 30927.2114 spikes/image/timestep
+
+## SNN with Surrogate
+•	Model architecture: must mirror CNN structure from task 1:
+Input:
+
+- Image size: 32 × 32 × 3
+
+Convolutional Layers:
+
+- Conv1: 3 → 64 channels, kernel size = 3×3, stride = 1, padding = 1
+- Activation: ReLU
+- Batch Normalization
+
+- Conv2: 64 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
+- Activation: ReLU
+- Batch Normalization
+- Max Pooling: 2×2 (reduces to 16×16)
+
+- Conv3: 128 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
+- Activation: ReLU
+- Batch Normalization
+- Max Pooling: 2×2 (reduces to 8×8)
+
+- Conv4: 128 → 256 channels, kernel size = 3×3, stride = 1, padding = 1
+- Activation: ReLU
+- Batch Normalization
+- Max Pooling: 2×2 (reduces to 4×4)
+
+Fully Connected Layers:
+
+- Flatten: 256 × 4 × 4 = 4096 features
+- FC1: 4096 → 512
+- Activation: ReLU
+- FC2: 512 → 10 (output classes)
+
+Output:
+- 10 logits corresponding to CIFAR-10 classes
+
+•	Training details:
+The SNN was trained using Backpropagation Through Time (BPTT) with a surrogate gradient to approximate the non-differentiable spike function.
+
+- Neuron model: Leaky Integrate-and-Fire (LIF)
+- Surrogate gradient: sigmoid
+- Loss function: CrossEntropyLoss
+- Optimizer: Adam
+- Learning rate: 0.001
+- Batch size: 128
+- Time steps: T = 25
+- Epochs: 10
+
+•	Metrics:
+========== FINAL TEST RESULTS ==========
+Test Accuracy: 17.99%
+Test Loss: 10.0712
+Inference Time: 1.5936 ms/image
+Time Steps T: 25
+Average Spikes Per Image: 1946416.41
+Average Firing Rate: 0.316128
+Sparsity: 68.39%
+Model Size: 2,622,346 parameters
+
+Layer-wise firing rates:
+lif1: 0.275358
+lif2: 0.334458
+lif3: 0.323795
+lif4: 0.313929
+lif5: 0.408513
+lif_out: 0.997195
+
+•	Efficiency analysis:
+Efficiency notes for report:
+- This SNN uses LIF neurons trained directly with BPTT.
+- Surrogate gradient: fast sigmoid surrogate.
+- Latency is proportional to T time steps.
+- Sparsity is estimated as percentage of inactive neurons.
+- Activation memory increases approximately linearly with T during BPTT.
+
+## Comparing CNN and SNN Models:
+
+Metric 	         CNN (Task 1) 	   Converted SNN (Task 2)	Trained SNN (Task 3)
+Accuracy (%)	   88.68%	         26.27%	               17.99%
+Latency	         1 forward pass    25 time steps	         25 time steps
+Energy efficiency	Total MACs	      Total SynOps	         Total SynOps
+Sparsity (%)	   0% (dense)	      high sparsity	         68.39%
+
+
+(b) Discuss the following questions:
+• Why can SNNs be more energy-efficient despite longer latency?
+SNNs can be more energy-efficient because they are event-driven.  Despite the longer latency,
+the total number of ops are lower due to sparsity.
+
+• What information is lost during ANN to SNN conversion?
+During the conversion, activation values is from continuous values to discrete spikes over time.  
+This loses information.  Also information from ReLU and batch normalization are not perfectly 
+preserved.
+
+• How does accuracy degrade during conversion vs direct SNN training?
+ANN-to-SNN conversion typically results in a drop in accuracy because continuous activations are approximated using spike rates over a limited number of time steps. This approximation introduces quantization and timing errors.
+
+In contrast, directly trained SNNs using surrogate gradients can achieve better accuracy because the network learns spike-based representations during training. However, training SNNs directly is more difficult and computationally expensive due to temporal dynamics and surrogate gradient approximations.
+
+
+• How does increasing time steps T affect accuracy and latency?
+Increasing the number of time steps T generally improves accuracy because the network has more time to accumulate information and refine spike-based representations.
+
+However, increasing T also increases latency, as inference requires sequential processing across time steps. Additionally, computational cost and memory usage increase approximately linearly with T.
+
+• Why are SNNs slower on GPUs despite sparsity?
+GPU are optimized for dense, matrices like the ones on CNN.  However, SNN uses sequential time-step processing and sparse, event-driven computation making it unable to take advantage for GPUs.
+
+• Why are SNNs efficient on neuromorphic hardware such as Intel Loihi?
+Intel Loihi is designed for event-driven spike computation and can do this on sparse matrices.
+
+• What challenges arise when extending SNNs to object detection?
+Object detection require accurate location information but SNN is event driven which means it could lose location information.
