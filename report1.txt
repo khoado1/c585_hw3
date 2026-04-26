@@ -1,36 +1,6 @@
 
 CNN:
 •	Model architecture: 
-    1. Convolution: 
-        in channel: 3, 
-        out channel: 64,
-        kernel size = 3x3,
-        stride = 1,
-        padding = 1,
-        activation: ReLU,
-        batch normalization
-
-    2. Convolution: 
-        in channel: 64, 
-        out channel: 128,
-        kernel size = 3x3,
-        stride = 1,
-        padding = 1,
-        activation: ReLU,
-        batch normalization,
-        max pooling: 2x2 to 16x16
-
-    1. Convolution: 
-        in channel: 128, 
-        out channel: 128,
-        kernel size = 3x3,
-        stride = 1,
-        padding = 1,
-        activation: ReLU,
-        batch normalization
-        max pooling: 2x2 to 8x8
-
-Architecture:
 
 Input:
 
@@ -60,41 +30,36 @@ Convolutional Layers:
 Fully Connected Layers:
 
 - Flatten: 256 × 4 × 4 = 4096 features
-
 - FC1: 4096 → 512
-
 - Activation: ReLU
-
 - FC2: 512 → 10 (output classes)
 
 Output:
-
 - 10 logits corresponding to CIFAR-10 classes
 
 
-•	Training setup: Optimizer, learning rate, batch size, epochs, loss function 
-The model was trained using the following configuration:
+•	Training setup:
 
 - Optimizer: Adam
 - Learning Rate: 0.001
 - Batch Size: 128
-- Number of Epochs: (replace with your actual value, e.g., 20 or 30)
+- Number of Epochs: 30
 - Loss Function: CrossEntropyLoss
 
 Data Preprocessing:
-- Random cropping with padding (data augmentation)
+- Random cropping with padding
 - Random horizontal flipping
 - Normalization using CIFAR-10 mean and standard deviation
 
 Hardware:
-- Training performed on GPU (if available)
+- Training performed on GPU
 
-•	Results: training/validation loss and accuracy curves, final test accuracy, average inference time per image (ms/image) 
-Training Results:
+•	Results: training/validation loss and accuracy curves, final test accuracy, average inference time per
+image (ms/image)
 
 - Final Test Accuracy: XX.XX %
-- Training Accuracy: XX.XX %
-- Validation Accuracy: XX.XX %
+- Training Accuracy: 89.28%
+- Validation Accuracy: 88.68%
 
 Loss and Accuracy Curves:
 - Training loss decreased steadily over epochs
