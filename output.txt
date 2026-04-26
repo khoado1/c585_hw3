@@ -40,7 +40,6 @@ Best Validation Accuracy: 88.68%
 Test Loss: 0.3536
 Test Accuracy: 89.28%
 Average Inference Time: 0.4882 ms/image
-(.venv) PS C:\Users\khoa_\dev\c585_hw3> 
 
 ## ANN-SNN
 (.venv) PS C:\Users\khoa_\dev\c585_hw3> python ann_snn.py --weights cnn_cifar10_best.pth --num_steps 25 --batch_size 128
