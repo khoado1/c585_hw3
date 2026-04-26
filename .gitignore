@@ -1,5 +1,7 @@
 .venv
-*.tar.gz
 data/
+runs/
+*.tar.gz
 *.pth
 *.png
+*.pt

@@ -104,3 +104,110 @@ Efficiency notes for report:
 - Sparsity is estimated as percentage of inactive neurons.
 - Activation memory increases approximately linearly with T during BPTT.
 (.venv) PS C:\Users\khoa_\dev\c585_hw3> 
+
+## faster R CNN
+(.venv) PS C:\Users\khoa_\dev\c585_hw3> python faster_R_CNN.py
+Device: cuda
+C:\Users\khoa_\dev\c585_hw3\.venv\Lib\site-packages\torchvision\models\_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\khoa_\dev\c585_hw3\.venv\Lib\site-packages\torchvision\models\_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=FasterRCNN_ResNet50_FPN_Weights.COCO_V1`. You can also use `weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth" to C:\Users\khoa_/.cache\torch\hub\checkpoints\fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
+100.0%
+100.0%
+
+Faster R-CNN Results:
+Inference time: 32.38 ms/image
+mAP: (OPTIONAL – requires COCO/VOC evaluator, can approximate or omit)
+(.venv) PS C:\Users\khoa_\dev\c585_hw3> 
+
+
+## YOLO
+
+YOLO Evaluation:
+ultralytics.utils.metrics.DetMetrics object with attributes:
+
+ap_class_index: array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+box: ultralytics.utils.metrics.Metric object
+confusion_matrix: <ultralytics.utils.metrics.ConfusionMatrix object at 0x000001AFA3C01090>
+curves: ['Precision-Recall(B)', 'F1-Confidence(B)', 'Precision-Confidence(B)', 'Recall-Confidence(B)']
+...
+
+results_dict: {'metrics/precision(B)': 0.08678472793051493, 'metrics/recall(B)': 0.08494837093359539, 'metrics/mAP50(B)': 0.09088916427612607, 'metrics/mAP50-95(B)': 0.07320341015587027, 'fitness': 0.07320341015587027}
+save_dir: WindowsPath('C:/Users/khoa_/dev/c585_hw3/runs/detect/val')
+speed: {'preprocess': 0.5446086429687987, 'inference': 0.6731515145203166, 'loss': 0.00022409128408648843, 'postprocess': 0.8144845315495248}
+stats: {'tp': [], 'conf': [], 'pred_cls': [], 'target_cls': [], 'target_img': []}
+
+Running inference speed test...
+
+Downloading https://ultralytics.com/images/bus.jpg to 'bus.jpg': 100% ━━━━━━━━━━━━ 134.2KB 5.0MB/s 0.0s
+image 1/1 C:\Users\khoa_\dev\c585_hw3\bus.jpg: 640x480 4 persons, 1 bus, 1 stop sign, 28.9ms
+Speed: 1.7ms preprocess, 28.9ms inference, 2.1ms postprocess per image at shape (1, 3, 640, 480)
+Inference time: 957.83 ms
+
+Fine-tuning YOLO...
+Ultralytics 8.4.41  Python-3.11.9 torch-2.11.0+cu130 CUDA:0 (NVIDIA GeForce RTX 5090 Laptop GPU, 24463MiB)
+engine\trainer: agnostic_nms=False, amp=True, angle=1.0, augment=False, auto_augment=randaugment, batch=16, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, cls_pw=0.0, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=voc.yaml, degrees=0.0, deterministic=True, device=None, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, end2end=None, epochs=3, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolov8n.pt, momentum=0.937, mosaic=1.0, multi_scale=0.0, name=train, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=100, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=None, rect=False, resume=False, retina_masks=False, rle=1.0, save=True, save_conf=False, save_crop=False, save_dir=C:\Users\khoa_\dev\c585_hw3\runs\detect\train, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
+Overriding model.yaml nc=80 with nc=20
+...
+Transferred 319/355 items from pretrained weights
+Freezing layer 'model.22.dfl.conv.weight'
+AMP: running Automatic Mixed Precision (AMP) checks...
+
+val: Fast image access  (ping: 0.00.0 ms, read: 971.6412.5 MB/s, size: 90.6 KB)
+val: Scanning C:\Users\khoa_\dev\datasets\VOC\labels\test2007.cache... 4952 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 4952/4952  0.0s
+optimizer: 'optimizer=auto' found, ignoring 'lr0=0.01' and 'momentum=0.937' and determining best 'optimizer', 'lr0' and 'momentum' automatically... 
+optimizer: AdamW(lr=0.000417, momentum=0.9) with parameter groups 57 weight(decay=0.0), 64 weight(decay=0.0005), 63 bias(decay=0.0)
+Plotting labels to C:\Users\khoa_\dev\c585_hw3\runs\detect\train\labels.jpg... 
+Image sizes 640 train, 640 val
+Using 8 dataloader workers
+Logging results to C:\Users\khoa_\dev\c585_hw3\runs\detect\train
+Starting training for 3 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+        1/3      2.07G     0.9781      2.277      1.274         54        640: 100% ━━━━━━━━━━━━ 1035/1035 15.4it/s 1:07
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 155/155 9.3it/s 16.6s
+                   all       4952      12032      0.701      0.666      0.719      0.493
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+        2/3      2.07G       0.99      1.631      1.282         36        640: 100% ━━━━━━━━━━━━ 1035/1035 16.1it/s 1:04
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 155/155 9.2it/s 16.9s
+                   all       4952      12032      0.717      0.668      0.725      0.503
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+        3/3      2.07G     0.9542      1.466      1.252         60        640: 100% ━━━━━━━━━━━━ 1035/1035 14.5it/s 1:11
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 155/155 9.3it/s 16.7s
+                   all       4952      12032      0.741      0.712      0.773      0.553
+
+3 epochs completed in 0.071 hours.
+Optimizer stripped from C:\Users\khoa_\dev\c585_hw3\runs\detect\train\weights\last.pt, 6.2MB
+Optimizer stripped from C:\Users\khoa_\dev\c585_hw3\runs\detect\train\weights\best.pt, 6.2MB
+
+Validating C:\Users\khoa_\dev\c585_hw3\runs\detect\train\weights\best.pt...
+Ultralytics 8.4.41  Python-3.11.9 torch-2.11.0+cu130 CUDA:0 (NVIDIA GeForce RTX 5090 Laptop GPU, 24463MiB)
+Model summary (fused): 73 layers, 3,009,548 parameters, 0 gradients, 8.1 GFLOPs
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 155/155 7.2it/s 21.7s
+                   all       4952      12032      0.741      0.713      0.773      0.554
+             aeroplane        204        285       0.85      0.761      0.845      0.608
+               bicycle        239        337      0.936      0.605      0.853      0.607
+                  bird        282        459      0.774      0.597      0.727      0.486
+                  boat        172        263      0.601      0.665      0.672       0.42
+                bottle        212        469       0.66      0.705      0.697      0.477
+                   bus        174        213      0.864      0.746      0.846      0.695
+                   car        721       1201      0.833      0.825      0.889      0.687
+                   cat        322        358      0.787      0.754       0.84       0.63
+                 chair        417        756       0.55       0.63      0.614        0.4
+                   cow        127        244       0.78      0.669      0.785      0.567
+           diningtable        190        206      0.655      0.733      0.759      0.574
+                   dog        418        489      0.692      0.779      0.791      0.565
+                 horse        274        348      0.818       0.77      0.835      0.604
+             motorbike        222        325      0.815      0.746       0.83      0.567
+                person       2007       4528      0.862      0.775      0.881      0.611
+           pottedplant        224        480      0.526      0.454      0.476       0.26
+                 sheep         97        242      0.741      0.723      0.795      0.588
+                  sofa        223        239      0.593      0.726      0.712      0.568
+                 train        259        282      0.789       0.84      0.857      0.606
+             tvmonitor        229        308      0.697      0.756       0.76      0.552
+Speed: 0.1ms preprocess, 0.3ms inference, 0.0ms loss, 1.0ms postprocess per image
+Results saved to C:\Users\khoa_\dev\c585_hw3\runs\detect\train
+(.venv) PS C:\Users\khoa_\dev\c585_hw3> 
