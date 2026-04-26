@@ -11,59 +11,7 @@ import torchvision.transforms as transforms
 import snntorch as snn
 from snntorch import surrogate
 
-#update to latest snntorch version
-#my updates
-# ----------------------------
-# Data
-# ----------------------------
-
-def get_loaders(batch_size=128):
-    mean = (0.4914, 0.4822, 0.4465)
-    std = (0.2470, 0.2435, 0.2616)
-
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std),
-    ])
-
-    test_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std),
-    ])
-
-    train_set = torchvision.datasets.CIFAR10(
-        root="./data", train=True, download=True, transform=train_transform
-    )
-
-    test_set = torchvision.datasets.CIFAR10(
-        root="./data", train=False, download=True, transform=test_transform
-    )
-
-    train_size = int(0.9 * len(train_set))
-    val_size = len(train_set) - train_size
-
-    train_set, val_set = torch.utils.data.random_split(
-        train_set,
-        [train_size, val_size],
-        generator=torch.Generator().manual_seed(42),
-    )
-
-    train_loader = torch.utils.data.DataLoader(
-        train_set, batch_size=batch_size, shuffle=True, num_workers=2
-    )
-
-    val_loader = torch.utils.data.DataLoader(
-        val_set, batch_size=batch_size, shuffle=False, num_workers=2
-    )
-
-    test_loader = torch.utils.data.DataLoader(
-        test_set, batch_size=batch_size, shuffle=False, num_workers=2
-    )
-
-    return train_loader, val_loader, test_loader
-
+from cifar10_data import get_cifar10_loaders
 
 # ----------------------------
 # Surrogate SNN Model
@@ -304,7 +252,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    train_loader, val_loader, test_loader = get_loaders(args.batch_size)
+    train_loader, val_loader, test_loader = get_cifar10_loaders(args.batch_size)
 
     model = SurrogateSNN(beta=args.beta).to(device)
 

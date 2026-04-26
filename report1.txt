@@ -39,33 +39,22 @@ Input:
 Convolutional Layers:
 
 - Conv1: 3 → 64 channels, kernel size = 3×3, stride = 1, padding = 1
-
 - Activation: ReLU
-
 - Batch Normalization
 
 - Conv2: 64 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
-
 - Activation: ReLU
-
 - Batch Normalization
-
 - Max Pooling: 2×2 (reduces to 16×16)
 
 - Conv3: 128 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
-
 - Activation: ReLU
-
 - Batch Normalization
-
 - Max Pooling: 2×2 (reduces to 8×8)
 
 - Conv4: 128 → 256 channels, kernel size = 3×3, stride = 1, padding = 1
-
 - Activation: ReLU
-
 - Batch Normalization
-
 - Max Pooling: 2×2 (reduces to 4×4)
 
 Fully Connected Layers:

@@ -8,53 +8,9 @@ import torchvision.transforms as transforms
 import snntorch as snn
 from snntorch import spikegen
 
-
-# ----------------------------
-# 1. CNN ARCHITECTURE
-# Must match your cnn.py model
-# ----------------------------
-class CIFAR10CNN(nn.Module):
-    def __init__(self, num_classes=10):
-        super().__init__()
-
-        self.features = nn.Sequential(
-            # input: 3 x 32 x 32
-            nn.Conv2d(3, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 64 x 16 x 16
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 128 x 8 x 8
-
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 256 x 4 x 4
-        )
-
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(256 * 4 * 4, 512),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(512, num_classes)
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
-        return x
+from models import CIFAR10CNN
+from cifar10_data import get_cifar10_test_loader
+from common import state_dictionary_filename
 
 # ----------------------------
 # 2. Converted SNN
@@ -155,35 +111,6 @@ class ConvertedSNN(nn.Module):
 
 
 # ----------------------------
-# 3. Data Loaders
-# ----------------------------
-def get_test_loader(batch_size):
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=(0.4914, 0.4822, 0.4465),
-            std=(0.2470, 0.2435, 0.2616)
-        )
-    ])
-
-    test_set = torchvision.datasets.CIFAR10(
-        root="./data",
-        train=False,
-        download=True,
-        transform=transform
-    )
-
-    test_loader = torch.utils.data.DataLoader(
-        test_set,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=2
-    )
-
-    return test_loader
-
-
-# ----------------------------
 # 4. Evaluation
 # ----------------------------
 def evaluate_snn(model, test_loader, device, num_steps):
@@ -227,7 +154,7 @@ def evaluate_snn(model, test_loader, device, num_steps):
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--weights", type=str, default="cnn_cifar10.pth")
+    parser.add_argument("--weights", type=str, default=state_dictionary_filename)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--num_steps", type=int, default=25)
     parser.add_argument("--beta", type=float, default=0.95)
@@ -237,7 +164,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    test_loader = get_test_loader(args.batch_size)
+    test_loader = get_cifar10_test_loader(args.batch_size)
 
     cnn = CIFAR10CNN().to(device)
     cnn.load_state_dict(torch.load(args.weights, map_location=device))

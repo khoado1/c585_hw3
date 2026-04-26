@@ -11,87 +11,9 @@ from torch.utils.data import DataLoader, random_split
 import ssl
 import certifi
 
-
-class CIFAR10CNN(nn.Module):
-    def __init__(self, num_classes=10):
-        super().__init__()
-
-        self.features = nn.Sequential(
-            # input: 3 x 32 x 32
-            nn.Conv2d(3, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 64 x 16 x 16
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 128 x 8 x 8
-
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # 256 x 4 x 4
-        )
-
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(256 * 4 * 4, 512),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(512, num_classes)
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
-        return x
-
-
-def get_loaders(batch_size=128):
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=(0.4914, 0.4822, 0.4465),
-            std=(0.2470, 0.2435, 0.2616)
-        )
-    ])
-
-    test_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=(0.4914, 0.4822, 0.4465),
-            std=(0.2470, 0.2435, 0.2616)
-        )
-    ])
-
-    full_train = torchvision.datasets.CIFAR10(
-        root="./data", train=True, download=True, transform=train_transform
-    )
-
-    test_set = torchvision.datasets.CIFAR10(
-        root="./data", train=False, download=True, transform=test_transform
-    )
-
-    train_size = int(0.9 * len(full_train))
-    val_size = len(full_train) - train_size
-    train_set, val_set = random_split(full_train, [train_size, val_size])
-
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=2)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=2)
-
-    return train_loader, val_loader, test_loader
+from models import CIFAR10CNN
+from cifar10_data import get_cifar10_loaders
+from common import state_dictionary_filename
 
 
 def run_epoch(model, loader, criterion, optimizer, device, train=True):
@@ -194,7 +116,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    train_loader, val_loader, test_loader = get_loaders(args.batch_size)
+    train_loader, val_loader, test_loader = get_cifar10_loaders(args.batch_size)
 
     model = CIFAR10CNN().to(device)
 
@@ -235,11 +157,11 @@ def main():
 
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), "cnn_cifar10_best.pth")
+            torch.save(model.state_dict(), state_dictionary_filename)
 
     plot_curves(history)
 
-    model.load_state_dict(torch.load("cnn_cifar10_best.pth", map_location=device))
+    model.load_state_dict(torch.load(state_dictionary_filename, map_location=device))
 
     test_loss, test_acc = run_epoch(
         model, test_loader, criterion, optimizer=None, device=device, train=False
