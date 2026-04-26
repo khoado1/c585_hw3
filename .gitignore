@@ -1,6 +1,7 @@
 .venv
 data/
 runs/
+.DS_Store
 *.tar.gz
 *.pth
 *.png
