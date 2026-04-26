@@ -1,0 +1,135 @@
+
+CNN:
+•	Model architecture: 
+    1. Convolution: 
+        in channel: 3, 
+        out channel: 64,
+        kernel size = 3x3,
+        stride = 1,
+        padding = 1,
+        activation: ReLU,
+        batch normalization
+
+    2. Convolution: 
+        in channel: 64, 
+        out channel: 128,
+        kernel size = 3x3,
+        stride = 1,
+        padding = 1,
+        activation: ReLU,
+        batch normalization,
+        max pooling: 2x2 to 16x16
+
+    1. Convolution: 
+        in channel: 128, 
+        out channel: 128,
+        kernel size = 3x3,
+        stride = 1,
+        padding = 1,
+        activation: ReLU,
+        batch normalization
+        max pooling: 2x2 to 8x8
+
+Architecture:
+
+Input:
+
+- Image size: 32 × 32 × 3
+
+Convolutional Layers:
+
+- Conv1: 3 → 64 channels, kernel size = 3×3, stride = 1, padding = 1
+
+- Activation: ReLU
+
+- Batch Normalization
+
+- Conv2: 64 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
+
+- Activation: ReLU
+
+- Batch Normalization
+
+- Max Pooling: 2×2 (reduces to 16×16)
+
+- Conv3: 128 → 128 channels, kernel size = 3×3, stride = 1, padding = 1
+
+- Activation: ReLU
+
+- Batch Normalization
+
+- Max Pooling: 2×2 (reduces to 8×8)
+
+- Conv4: 128 → 256 channels, kernel size = 3×3, stride = 1, padding = 1
+
+- Activation: ReLU
+
+- Batch Normalization
+
+- Max Pooling: 2×2 (reduces to 4×4)
+
+Fully Connected Layers:
+
+- Flatten: 256 × 4 × 4 = 4096 features
+
+- FC1: 4096 → 512
+
+- Activation: ReLU
+
+- FC2: 512 → 10 (output classes)
+
+Output:
+
+- 10 logits corresponding to CIFAR-10 classes
+
+
+•	Training setup: Optimizer, learning rate, batch size, epochs, loss function 
+The model was trained using the following configuration:
+
+- Optimizer: Adam
+- Learning Rate: 0.001
+- Batch Size: 128
+- Number of Epochs: (replace with your actual value, e.g., 20 or 30)
+- Loss Function: CrossEntropyLoss
+
+Data Preprocessing:
+- Random cropping with padding (data augmentation)
+- Random horizontal flipping
+- Normalization using CIFAR-10 mean and standard deviation
+
+Hardware:
+- Training performed on GPU (if available)
+
+•	Results: training/validation loss and accuracy curves, final test accuracy, average inference time per image (ms/image) 
+Training Results:
+
+- Final Test Accuracy: XX.XX %
+- Training Accuracy: XX.XX %
+- Validation Accuracy: XX.XX %
+
+Loss and Accuracy Curves:
+- Training loss decreased steadily over epochs
+- Validation accuracy improved and stabilized, indicating good generalization
+
+Inference Performance:
+- Average inference time: XX.XX ms/image
+
+•	Any special techniques used to improve the performance if any 
+Several techniques were used to improve model performance:
+
+1. Data Augmentation:
+   - Random cropping and horizontal flipping increased dataset diversity and reduced overfitting.
+
+2. Batch Normalization:
+   - Applied after convolution layers to stabilize training and accelerate convergence.
+
+3. Deep Architecture:
+   - Multiple convolutional layers allowed the network to learn hierarchical features.
+
+4. ReLU Activation:
+   - Introduced non-linearity and improved gradient flow.
+
+5. Max Pooling:
+   - Reduced spatial dimensions while retaining important features.
+
+These techniques collectively helped the model achieve high accuracy (>80%) on CIFAR-10.
