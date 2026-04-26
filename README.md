@@ -4,7 +4,7 @@ python3 cnn.py --epochs 30 --batch_size 128 --lr 0.001
 
 
 
-pip install torch torchvision matplotlib certifi snntorch
+pip install torch torchvision matplotlib certifi snntorch ultralytics
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -51,3 +51,7 @@ python ann_snn.py --weights cnn_cifar10.pth --num_steps 25 --batch_size 128
 python ann_snn.py --weights cnn_cifar10_best.pth --num_steps 25 --batch_size 128
 
 python surrogate_snn.py --epochs 10 --batch_size 128 --lr 0.001 --num_steps 25
+
+python faster_R_CNN.py
+python YOLO.py
+python inference.py
