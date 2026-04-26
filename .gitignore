@@ -5,5 +5,4 @@ runs/
 __pycache__/
 *.tar.gz
 *.pth
-*.png
 *.pt
